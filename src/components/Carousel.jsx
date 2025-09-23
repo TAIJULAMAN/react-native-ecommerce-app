@@ -12,29 +12,70 @@ export default function Carousel({
   containerStyle,
   dotColor = '#D1D5DB',
   activeDotColor = '#2563EB',
+  showDots = true,
+  dotSize = 8,
+  dotActiveWidth = 18,
+  dotBottomOffset = 8,
+  dotTopMargin = 0,
+  dotsOutside = false,
+  pauseOnTouch = true,
+  onIndexChange,
 }) {
   const scrollRef = useRef(null);
   const scrollX = useRef(new Animated.Value(0)).current;
   const [index, setIndex] = useState(0);
   const total = items.length;
   const contentWidth = useMemo(() => SCREEN_WIDTH, []);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     if (!autoPlay || total <= 1) return;
-    const id = setInterval(() => {
+    // start / restart autoplay
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
       const next = (index + 1) % total;
       if (scrollRef.current) {
         scrollRef.current.scrollTo({ x: next * contentWidth, animated: true });
       }
       setIndex(next);
     }, autoPlayInterval);
-    return () => clearInterval(id);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [index, total, autoPlay, autoPlayInterval, contentWidth]);
 
   const onMomentumEnd = (e) => {
     const x = e.nativeEvent.contentOffset.x;
     const newIndex = Math.round(x / contentWidth);
     setIndex(newIndex);
+    if (onIndexChange) onIndexChange(newIndex);
+  };
+
+  const handleBeginDrag = () => {
+    if (pauseOnTouch && timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const handleEndDrag = () => {
+    if (pauseOnTouch && autoPlay && total > 1 && !timerRef.current) {
+      // Slight delay before resuming
+      timerRef.current = setInterval(() => {
+        const next = (index + 1) % total;
+        if (scrollRef.current) {
+          scrollRef.current.scrollTo({ x: next * contentWidth, animated: true });
+        }
+        setIndex(next);
+      }, autoPlayInterval);
+    }
+  };
+
+  const goTo = (i) => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTo({ x: i * contentWidth, animated: true });
+    setIndex(i);
+    if (onIndexChange) onIndexChange(i);
   };
 
   return (
@@ -49,6 +90,8 @@ export default function Carousel({
           [{ nativeEvent: { contentOffset: { x: scrollX } } }],
           { useNativeDriver: true }
         )}
+        onScrollBeginDrag={handleBeginDrag}
+        onScrollEndDrag={handleEndDrag}
         scrollEventThrottle={16}
         contentContainerStyle={{ alignItems: 'stretch' }}
       >
@@ -75,47 +118,95 @@ export default function Carousel({
           );
         })}
       </Animated.ScrollView>
-      {total > 1 && (
-        <View style={styles.dotsWrap}>
-          {items.map((_, i) => {
-            const inputRange = [
-              (i - 1) * contentWidth,
-              i * contentWidth,
-              (i + 1) * contentWidth,
-            ];
-            const width = scrollX.interpolate({
-              inputRange,
-              outputRange: [8, 18, 8],
-              extrapolate: 'clamp',
-            });
-            const bg = scrollX.interpolate({
-              inputRange,
-              outputRange: [dotColor, activeDotColor, dotColor],
-            });
-            return (
-              <Animated.View key={i} style={[styles.dot, { width, backgroundColor: bg }]} />
-            );
-          })}
-        </View>
+      {showDots && total > 1 && (
+        dotsOutside ? (
+          <View style={[styles.dotsRow, { marginTop: dotTopMargin }] }>
+            {items.map((_, i) => {
+              const inputRange = [
+                (i - 1) * contentWidth,
+                i * contentWidth,
+                (i + 1) * contentWidth,
+              ];
+              const width = scrollX.interpolate({
+                inputRange,
+                outputRange: [dotSize, dotActiveWidth, dotSize],
+                extrapolate: 'clamp',
+              });
+              const opacity = scrollX.interpolate({
+                inputRange,
+                outputRange: [0.2, 1, 0.2],
+                extrapolate: 'clamp',
+              });
+              return (
+                <Dot
+                  key={i}
+                  size={dotSize}
+                  inactiveColor={dotColor}
+                  activeColor={activeDotColor}
+                  width={width}
+                  opacity={opacity}
+                  onPress={() => goTo(i)}
+                />
+              );
+            })}
+          </View>
+        ) : (
+          <View style={[styles.dotsWrap, { bottom: dotBottomOffset, marginTop: dotTopMargin }] }>
+            {items.map((_, i) => {
+              const inputRange = [
+                (i - 1) * contentWidth,
+                i * contentWidth,
+                (i + 1) * contentWidth,
+              ];
+              const width = scrollX.interpolate({
+                inputRange,
+                outputRange: [dotSize, dotActiveWidth, dotSize],
+                extrapolate: 'clamp',
+              });
+              const opacity = scrollX.interpolate({
+                inputRange,
+                outputRange: [0.2, 1, 0.2],
+                extrapolate: 'clamp',
+              });
+              return (
+                <Dot
+                  key={i}
+                  size={dotSize}
+                  inactiveColor={dotColor}
+                  activeColor={activeDotColor}
+                  width={width}
+                  opacity={opacity}
+                  onPress={() => goTo(i)}
+                />
+              );
+            })}
+          </View>
+        )
       )}
     </View>
   );
 }
 
+const Dot = ({ size, inactiveColor, activeColor, width, opacity, onPress }) => (
+  <Animated.View style={[styles.dotOuter, { width }]}> 
+    <View style={[styles.dotBase, { height: size, borderRadius: size / 2, backgroundColor: inactiveColor }]} />
+    <Animated.View
+      onTouchEnd={onPress}
+      style={[styles.dotFill, { height: size, borderRadius: size / 2, backgroundColor: activeColor, opacity }]} />
+  </Animated.View>
+);
+
 const styles = StyleSheet.create({
   dotsWrap: {
     position: 'absolute',
-    bottom: 8,
     left: 0,
+    marginTop: 16,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 6,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    opacity: 0.9,
-  },
+  dotOuter: { height: 8, alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  dotBase: { position: 'absolute', left: 0, right: 0 },
+  dotFill: { position: 'absolute', left: 0, right: 0 },
 });

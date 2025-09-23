@@ -13,21 +13,21 @@ export default function HomeScreen({ isDarkMode, products = [], onOpenDetails, o
     {
       title: '50-40% OFF',
       subtitle: 'Now in (product)\nAll colours',
-      image: 'https://images.unsplash.com/photo-1548611716-0b68de6bd6ef?q=80&w=800&auto=format&fit=crop',
+      image: require('../assets/Rectangle 48.png'),
       bg: '#FDE6EC',
       fg: '#0B1A33',
     },
     {
       title: 'Hot Summer Sale',
       subtitle: 'Limited time offer',
-      image: 'https://images.unsplash.com/photo-1503342217505-b0a15cf70489?q=80&w=800&auto=format&fit=crop',
+      image: require('../assets/unsplash_NoVnXXmDNi0.png'),
       bg: '#FFF3D6',
       fg: '#0B1A33',
     },
     {
       title: 'New Arrivals',
       subtitle: 'Fresh styles just in',
-      image: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800&auto=format&fit=crop',
+      image: require('../assets/Rectangle 48.png'),
       bg: '#E6F4FF',
       fg: '#0B1A33',
     },
@@ -66,17 +66,17 @@ export default function HomeScreen({ isDarkMode, products = [], onOpenDetails, o
         dotColor={isDarkMode ? '#2B3443' : '#E5E7EB'}
         activeDotColor={'#F24E61'}
         renderItem={(s) => (
-          <View style={[styles.slideCard, { backgroundColor: s.bg }]}> 
-            <View style={styles.slideLeft}>
+          <View style={styles.slideCard}> 
+            <Image source={s.image} style={styles.slideBg} resizeMode="cover" />
+            <View style={styles.slideShade} />
+            <View style={styles.slideContent}>
               <View style={styles.pillWrap}><Text style={styles.pillText}>All Featured</Text></View>
-              <Text style={[styles.bannerTitle, { color: s.fg }]}>{s.title}</Text>
-              <Text style={[styles.bannerSub, { color: 'rgba(0,0,0,0.55)' }]}>{s.subtitle}</Text>
+              <Text style={[styles.bannerTitle, { color: '#FFFFFF' }]}>{s.title}</Text>
+              <Text style={[styles.bannerSub, { color: 'rgba(255,255,255,0.9)' }]}>{s.subtitle}</Text>
               <TouchableOpacity activeOpacity={0.9} style={styles.bannerCtaStrong} onPress={onNavigateShop}>
                 <Text style={styles.bannerCtaStrongText}>Shop Now  →</Text>
               </TouchableOpacity>
             </View>
-            <Image source={{ uri: s.image }} style={styles.slideImg} />
-            <View style={styles.slideOverlay} />
           </View>
         )}
       />
@@ -162,11 +162,11 @@ const styles = StyleSheet.create({
   bannerCta: { marginTop: 8, alignSelf: 'flex-start', backgroundColor: '#2563EB', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
   bannerCtaText: { color: '#fff', fontWeight: '800' },
   bannerImg: { width: 96, height: 96, borderRadius: 12, backgroundColor: '#CCD6E5' },
-  slideCard: { marginHorizontal: 20, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, height: 180, overflow: 'hidden',
+  slideCard: { marginHorizontal: 20, borderRadius: 20, height: 180, overflow: 'hidden', position: 'relative',
     shadowColor: '#000', shadowOpacity: 0.12, shadowOffset: { width: 0, height: 8 }, shadowRadius: 16, elevation: 6 },
-  slideLeft: { flex: 1 },
-  slideImg: { width: 130, height: 130, borderRadius: 16, backgroundColor: '#CCD6E5' },
-  slideOverlay: { position: 'absolute', right: -30, bottom: -30, width: 160, height: 160, borderRadius: 80, backgroundColor: 'rgba(255,255,255,0.25)' },
+  slideBg: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%', resizeMode: 'cover' },
+  slideShade: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.25)' },
+  slideContent: { flex: 1, justifyContent: 'center', padding: 16 },
   pillWrap: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 6, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 999, marginBottom: 6 },
   pillText: { fontSize: 11, fontWeight: '800', color: '#0B1A33' },
   bannerCtaStrong: { marginTop: 10, alignSelf: 'flex-start', backgroundColor: '#F24E61', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12 },
