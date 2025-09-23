@@ -127,9 +127,9 @@ export default function Carousel({
                 i * contentWidth,
                 (i + 1) * contentWidth,
               ];
-              const width = scrollX.interpolate({
+              const scaleX = scrollX.interpolate({
                 inputRange,
-                outputRange: [dotSize, dotActiveWidth, dotSize],
+                outputRange: [dotSize / dotActiveWidth, 1, dotSize / dotActiveWidth],
                 extrapolate: 'clamp',
               });
               const opacity = scrollX.interpolate({
@@ -141,9 +141,10 @@ export default function Carousel({
                 <Dot
                   key={i}
                   size={dotSize}
+                  activeWidth={dotActiveWidth}
                   inactiveColor={dotColor}
                   activeColor={activeDotColor}
-                  width={width}
+                  scaleX={scaleX}
                   opacity={opacity}
                   onPress={() => goTo(i)}
                 />
@@ -158,9 +159,9 @@ export default function Carousel({
                 i * contentWidth,
                 (i + 1) * contentWidth,
               ];
-              const width = scrollX.interpolate({
+              const scaleX = scrollX.interpolate({
                 inputRange,
-                outputRange: [dotSize, dotActiveWidth, dotSize],
+                outputRange: [dotSize / dotActiveWidth, 1, dotSize / dotActiveWidth],
                 extrapolate: 'clamp',
               });
               const opacity = scrollX.interpolate({
@@ -172,9 +173,10 @@ export default function Carousel({
                 <Dot
                   key={i}
                   size={dotSize}
+                  activeWidth={dotActiveWidth}
                   inactiveColor={dotColor}
                   activeColor={activeDotColor}
-                  width={width}
+                  scaleX={scaleX}
                   opacity={opacity}
                   onPress={() => goTo(i)}
                 />
@@ -187,13 +189,24 @@ export default function Carousel({
   );
 }
 
-const Dot = ({ size, inactiveColor, activeColor, width, opacity, onPress }) => (
-  <Animated.View style={[styles.dotOuter, { width }]}> 
-    <View style={[styles.dotBase, { height: size, borderRadius: size / 2, backgroundColor: inactiveColor }]} />
+const Dot = ({ size, activeWidth, inactiveColor, activeColor, scaleX, opacity, onPress }) => (
+  <View style={[styles.dotOuter, { width: activeWidth }]}> 
+    <View style={[styles.dotBase, { height: size, borderRadius: size / 2, backgroundColor: inactiveColor, width: '100%' }]} />
     <Animated.View
       onTouchEnd={onPress}
-      style={[styles.dotFill, { height: size, borderRadius: size / 2, backgroundColor: activeColor, opacity }]} />
-  </Animated.View>
+      style={[
+        styles.dotFill,
+        {
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: activeColor,
+          opacity,
+          transform: [{ scaleX }],
+          width: '100%'
+        },
+      ]}
+    />
+  </View>
 );
 
 const styles = StyleSheet.create({
