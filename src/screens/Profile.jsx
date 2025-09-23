@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-export default function Profile({ isDarkMode, onSignOut }) {
+export default function Profile({ isDarkMode, onSignOut, onEditProfile, onOrders, onAddresses }) {
   const textMuted = { color: isDarkMode ? '#9FB3C8' : '#6B7A90' };
   const textTitle = { color: isDarkMode ? '#F0F7FF' : '#0B1A33' };
   const cardStyle = {
@@ -25,15 +25,15 @@ export default function Profile({ isDarkMode, onSignOut }) {
       </View>
 
       <View style={[styles.card, cardStyle]}>
-        <TouchableOpacity activeOpacity={0.85} style={styles.row}>
+        <TouchableOpacity activeOpacity={0.85} style={styles.row} onPress={onEditProfile}>
           <Text style={[styles.rowText, textTitle]}>Edit Profile</Text>
           <Text style={styles.chev}>›</Text>
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.85} style={styles.row}>
+        <TouchableOpacity activeOpacity={0.85} style={styles.row} onPress={onOrders}>
           <Text style={[styles.rowText, textTitle]}>Orders</Text>
           <Text style={styles.chev}>›</Text>
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.85} style={styles.row}>
+        <TouchableOpacity activeOpacity={0.85} style={styles.row} onPress={onAddresses}>
           <Text style={[styles.rowText, textTitle]}>Addresses</Text>
           <Text style={styles.chev}>›</Text>
         </TouchableOpacity>

@@ -28,6 +28,9 @@ import CartScreen from './src/screens/CartScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
 import PaymentScreen from './src/screens/PaymentScreen';
 import Profile from './src/screens/Profile';
+import EditProfile from './src/screens/EditProfile';
+import Orders from './src/screens/Orders';
+import Addresses from './src/screens/Addresses';
 import SignIn from './src/screens/SignIn';
 import SignUp from './src/screens/SignUp';
 import ForgotPassword from './src/screens/ForgotPassword';
@@ -79,7 +82,7 @@ function App() {
   const products = PRODUCTS;
 
   // simple navigation and cart state
-  const [route, setRoute] = useState('start'); // 'start' | 'signin' | 'signup' | 'forgot' | 'otp' | 'reset' | 'home' | 'shop' | 'details' | 'cart' | 'checkout' | 'payment' | 'profile'
+  const [route, setRoute] = useState('start'); // 'start' | auth... | 'home' | 'shop' | 'details' | 'cart' | 'checkout' | 'payment' | 'profile' | 'editProfile' | 'orders' | 'addresses'
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [cart, setCart] = useState([]); // [{ productId, qty }]
 
@@ -103,6 +106,9 @@ function App() {
   const navigateCart = () => setRoute('cart');
   const navigateShop = () => setRoute('shop');
   const navigateProfile = () => setRoute('profile');
+  const navigateEditProfile = () => setRoute('editProfile');
+  const navigateOrders = () => setRoute('orders');
+  const navigateAddresses = () => setRoute('addresses');
   // auth routes
   const navigateSignIn = () => setRoute('signin');
   const navigateSignUp = () => setRoute('signup');
@@ -179,6 +185,9 @@ function App() {
         onNavigateOtp={navigateOtp}
         onNavigateReset={navigateReset}
         onNavigateProfile={navigateProfile}
+        onNavigateEditProfile={navigateEditProfile}
+        onNavigateOrders={navigateOrders}
+        onNavigateAddresses={navigateAddresses}
       />
     </SafeAreaProvider>
   );
@@ -207,6 +216,9 @@ function AppContent({
   onNavigateOtp,
   onNavigateReset,
   onNavigateProfile,
+  onNavigateEditProfile,
+  onNavigateOrders,
+  onNavigateAddresses,
 }) {
   const isAuthRoute = ['signin', 'signup', 'forgot', 'otp', 'reset'].includes(route);
 
@@ -289,7 +301,13 @@ function AppContent({
 
             {/* Home */}
             {route === 'home' && (
-              <HomeScreen isDarkMode={isDarkMode} onNavigateShop={onNavigateShop} />
+              <HomeScreen
+                isDarkMode={isDarkMode}
+                products={products}
+                onOpenDetails={onOpenDetails}
+                onAddToCart={onAddToCart}
+                onNavigateShop={onNavigateShop}
+              />
             )}
 
             {/* Details */}
@@ -319,7 +337,25 @@ function AppContent({
               <Profile
                 isDarkMode={isDarkMode}
                 onSignOut={onNavigateSignIn}
+                onEditProfile={onNavigateEditProfile}
+                onOrders={onNavigateOrders}
+                onAddresses={onNavigateAddresses}
               />
+            )}
+
+            {/* Edit Profile */}
+            {route === 'editProfile' && (
+              <EditProfile isDarkMode={isDarkMode} onSave={onNavigateProfile} />
+            )}
+
+            {/* Orders */}
+            {route === 'orders' && (
+              <Orders isDarkMode={isDarkMode} />
+            )}
+
+            {/* Addresses */}
+            {route === 'addresses' && (
+              <Addresses isDarkMode={isDarkMode} />
             )}
 
             {/* Checkout */}
