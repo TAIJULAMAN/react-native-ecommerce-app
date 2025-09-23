@@ -27,6 +27,7 @@ import DetailsScreen from './src/screens/DetailsScreen';
 import CartScreen from './src/screens/CartScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
 import PaymentScreen from './src/screens/PaymentScreen';
+import Profile from './src/screens/Profile';
 import SignIn from './src/screens/SignIn';
 import SignUp from './src/screens/SignUp';
 import ForgotPassword from './src/screens/ForgotPassword';
@@ -78,7 +79,7 @@ function App() {
   const products = PRODUCTS;
 
   // simple navigation and cart state
-  const [route, setRoute] = useState('start'); // 'start' | 'signin' | 'signup' | 'forgot' | 'otp' | 'reset' | 'home' | 'shop' | 'details' | 'cart' | 'checkout' | 'payment'
+  const [route, setRoute] = useState('start'); // 'start' | 'signin' | 'signup' | 'forgot' | 'otp' | 'reset' | 'home' | 'shop' | 'details' | 'cart' | 'checkout' | 'payment' | 'profile'
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [cart, setCart] = useState([]); // [{ productId, qty }]
 
@@ -101,6 +102,7 @@ function App() {
   const navigateHome = () => setRoute('home');
   const navigateCart = () => setRoute('cart');
   const navigateShop = () => setRoute('shop');
+  const navigateProfile = () => setRoute('profile');
   // auth routes
   const navigateSignIn = () => setRoute('signin');
   const navigateSignUp = () => setRoute('signup');
@@ -176,6 +178,7 @@ function App() {
         onNavigateForgot={navigateForgot}
         onNavigateOtp={navigateOtp}
         onNavigateReset={navigateReset}
+        onNavigateProfile={navigateProfile}
       />
     </SafeAreaProvider>
   );
@@ -203,6 +206,7 @@ function AppContent({
   onNavigateForgot,
   onNavigateOtp,
   onNavigateReset,
+  onNavigateProfile,
 }) {
   const isAuthRoute = ['signin', 'signup', 'forgot', 'otp', 'reset'].includes(route);
 
@@ -310,6 +314,14 @@ function AppContent({
               />
             )}
 
+            {/* Profile */}
+            {route === 'profile' && (
+              <Profile
+                isDarkMode={isDarkMode}
+                onSignOut={onNavigateSignIn}
+              />
+            )}
+
             {/* Checkout */}
             {route === 'checkout' && (
               <CheckoutScreen
@@ -340,6 +352,7 @@ function AppContent({
               onNavigateHome={onNavigateHome}
               onNavigateShop={onNavigateShop}
               onNavigateCart={onNavigateCart}
+              onNavigateProfile={onNavigateProfile}
             />
           )}
         </>

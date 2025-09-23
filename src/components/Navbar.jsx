@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-export default function Navbar({ isDarkMode, route, cartCount, onNavigateHome, onNavigateShop, onNavigateCart }) {
+export default function Navbar({ isDarkMode, route, cartCount, onNavigateHome, onNavigateShop, onNavigateCart, onNavigateProfile }) {
   return (
     <View style={[styles.navbar, { backgroundColor: isDarkMode ? '#0E1726F2' : '#FFFFFFF2', borderColor: isDarkMode ? '#1B2537' : '#E6EEF6' }]}> 
       <TouchableOpacity activeOpacity={0.85} style={styles.navItem} onPress={onNavigateHome}>
@@ -22,6 +22,10 @@ export default function Navbar({ isDarkMode, route, cartCount, onNavigateHome, o
           )}
         </View>
         <Text style={[styles.navLabel, { color: route === 'cart' ? '#2563EB' : (isDarkMode ? '#CFE0F5' : '#102A43') }]}>Cart</Text>
+      </TouchableOpacity>
+      <TouchableOpacity activeOpacity={0.85} style={styles.navItem} onPress={onNavigateProfile}>
+        <Text style={[styles.navIcon, { color: route === 'profile' ? '#2563EB' : (isDarkMode ? '#9FB3C8' : '#6B7A90') }]}>👤</Text>
+        <Text style={[styles.navLabel, { color: route === 'profile' ? '#2563EB' : (isDarkMode ? '#CFE0F5' : '#102A43') }]}>Profile</Text>
       </TouchableOpacity>
     </View>
   );
