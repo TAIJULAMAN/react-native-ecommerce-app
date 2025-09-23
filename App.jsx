@@ -6,13 +6,27 @@
  */
 
 import React, { useMemo, useState } from 'react';
-// import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, Text, useColorScheme, View, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import {
-  SafeAreaProvider,
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+  StatusBar,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  Image,
+} from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import StartScreen from './src/screens/StartScreen';
+import Header from './src/components/Header';
+import Navbar from './src/components/Navbar';
+import ShopList from './src/screens/ShopList';
+import HomeScreen from './src/screens/HomeScreen';
+import DetailsScreen from './src/screens/DetailsScreen';
+import CartScreen from './src/screens/CartScreen';
+import CheckoutScreen from './src/screens/CheckoutScreen';
+import PaymentScreen from './src/screens/PaymentScreen';
 
 // Define static products at the module level to keep hook order stable
 const PRODUCTS = [
@@ -20,29 +34,37 @@ const PRODUCTS = [
     id: 'p1',
     name: 'Wireless Headphones',
     price: 79.99,
-    image: 'https://images.unsplash.com/photo-1518441902110-2376fc0b37e4?q=80&w=1200&auto=format&fit=crop',
-    description: 'Comfortable over-ear wireless headphones with deep bass and 30h battery life.',
+    image:
+      'https://images.unsplash.com/photo-1518441902110-2376fc0b37e4?q=80&w=1200&auto=format&fit=crop',
+    description:
+      'Comfortable over-ear wireless headphones with deep bass and 30h battery life.',
   },
   {
     id: 'p2',
     name: 'Smart Watch',
     price: 129.0,
-    image: 'https://images.unsplash.com/photo-1516570161787-2fd917215a3d?q=80&w=1200&auto=format&fit=crop',
-    description: 'Track fitness, heart rate, and notifications with a sleek, water-resistant design.',
+    image:
+      'https://images.unsplash.com/photo-1516570161787-2fd917215a3d?q=80&w=1200&auto=format&fit=crop',
+    description:
+      'Track fitness, heart rate, and notifications with a sleek, water-resistant design.',
   },
   {
     id: 'p3',
     name: 'Mechanical Keyboard',
     price: 99.5,
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop',
-    description: 'Tactile keys, RGB backlight, and durable switches for a premium typing experience.',
+    image:
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop',
+    description:
+      'Tactile keys, RGB backlight, and durable switches for a premium typing experience.',
   },
   {
     id: 'p4',
     name: '4K Action Camera',
     price: 149.99,
-    image: 'https://images.unsplash.com/photo-1519183071298-a2962be96f83?q=80&w=1200&auto=format&fit=crop',
-    description: 'Capture stunning 4K video with stabilization and waterproof housing.',
+    image:
+      'https://images.unsplash.com/photo-1519183071298-a2962be96f83?q=80&w=1200&auto=format&fit=crop',
+    description:
+      'Capture stunning 4K video with stabilization and waterproof housing.',
   },
 ];
 
@@ -51,16 +73,19 @@ function App() {
   const products = PRODUCTS;
 
   // simple navigation and cart state
-  const [route, setRoute] = useState('home'); // 'home' | 'details' | 'cart'
+  const [route, setRoute] = useState('start'); // 'start' | 'home' | 'shop' | 'details' | 'cart' | 'checkout' | 'payment'
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [cart, setCart] = useState([]); // [{ productId, qty }]
 
   const selectedProduct = useMemo(
     () => products.find(p => p.id === selectedProductId) || null,
-    [selectedProductId, products]
+    [selectedProductId, products],
   );
 
-  const cartCount = useMemo(() => cart.reduce((sum, it) => sum + it.qty, 0), [cart]);
+  const cartCount = useMemo(
+    () => cart.reduce((sum, it) => sum + it.qty, 0),
+    [cart],
+  );
   const cartTotal = useMemo(() => {
     return cart.reduce((sum, it) => {
       const p = products.find(pp => pp.id === it.productId);
@@ -70,12 +95,13 @@ function App() {
 
   const navigateHome = () => setRoute('home');
   const navigateCart = () => setRoute('cart');
-  const openDetails = (productId) => {
+  const navigateShop = () => setRoute('shop');
+  const openDetails = productId => {
     setSelectedProductId(productId);
     setRoute('details');
   };
 
-  const addToCart = (productId) => {
+  const addToCart = productId => {
     setCart(prev => {
       const idx = prev.findIndex(it => it.productId === productId);
       if (idx === -1) return [...prev, { productId, qty: 1 }];
@@ -92,7 +118,7 @@ function App() {
     setRoute('home');
   };
 
-  const decrementFromCart = (productId) => {
+  const decrementFromCart = productId => {
     setCart(prev => {
       const idx = prev.findIndex(it => it.productId === productId);
       if (idx === -1) return prev;
@@ -106,7 +132,17 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <StatusBar
+        barStyle={
+          route === 'start'
+            ? 'light-content'
+            : isDarkMode
+            ? 'light-content'
+            : 'dark-content'
+        }
+        translucent={route === 'start'}
+        backgroundColor={route === 'start' ? 'transparent' : undefined}
+      />
       <AppContent
         isDarkMode={isDarkMode}
         products={products}
@@ -119,6 +155,7 @@ function App() {
         onAddToCart={addToCart}
         onDecrementFromCart={decrementFromCart}
         onNavigateHome={navigateHome}
+        onNavigateShop={navigateShop}
         onNavigateCart={navigateCart}
         onNavigateCheckout={navigateCheckout}
         onNavigatePayment={navigatePayment}
@@ -128,197 +165,121 @@ function App() {
   );
 }
 
-function AppContent({ isDarkMode, products, route, selectedProduct, cart, cartCount, cartTotal, onOpenDetails, onAddToCart, onDecrementFromCart, onNavigateHome, onNavigateCart, onNavigateCheckout, onNavigatePayment, onPaymentSuccess }) {
-  // const safeAreaInsets = useSafeAreaInsets();
-
+function AppContent({
+  isDarkMode,
+  products,
+  route,
+  selectedProduct,
+  cart,
+  cartCount,
+  cartTotal,
+  onOpenDetails,
+  onAddToCart,
+  onDecrementFromCart,
+  onNavigateHome,
+  onNavigateShop,
+  onNavigateCart,
+  onNavigateCheckout,
+  onNavigatePayment,
+  onPaymentSuccess,
+}) {
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#0B0F14' : '#F6F8FB' }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-            {route !== 'home' && (
-              <TouchableOpacity onPress={onNavigateHome} activeOpacity={0.8} style={[styles.backBtn, { borderColor: isDarkMode ? '#253041' : '#D4E1F1', backgroundColor: isDarkMode ? '#121A24' : '#FFFFFF' }]}>
-                <Text style={{ fontSize: 16 }}>←</Text>
-              </TouchableOpacity>
-            )}
-            <View>
-              <Text style={[styles.greeting, { color: isDarkMode ? '#9FB3C8' : '#6B7A90' }]}>
-                {route === 'home' ? 'Welcome back,' : route === 'details' ? 'Product' : route === 'cart' ? 'Your' : route === 'checkout' ? 'Review' : 'Complete'}
-              </Text>
-              <Text style={[styles.name, { color: isDarkMode ? '#E6EEF6' : '#0B1A33' }]}>
-                {route === 'home' && 'Aman'}
-                {route === 'details' && (selectedProduct?.name || 'Details')}
-                {route === 'cart' && 'Cart'}
-                {route === 'checkout' && 'Checkout'}
-                {route === 'payment' && 'Payment'}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity onPress={onNavigateCart} activeOpacity={0.8} style={[styles.cartBtn, { backgroundColor: isDarkMode ? '#1A2330' : '#E6EEF6', borderColor: isDarkMode ? '#253041' : '#D4E1F1' }]}>
-            <Text style={{ fontSize: 18 }}>🛒</Text>
-            {cartCount > 0 && (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cartCount}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Search (Home only) */}
-        {route === 'home' && (
-        <View style={[styles.searchContainer, { backgroundColor: isDarkMode ? '#111823' : '#FFFFFF', borderColor: isDarkMode ? '#1F2A3A' : '#E7EDF5' }]}> 
-          <Text style={[styles.searchIcon, { color: isDarkMode ? '#7C8FA6' : '#8AA0B6' }]}>🔎</Text>
-          <TextInput
-            placeholder="Search anything..."
-            placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'}
-            style={[styles.searchInput, { color: isDarkMode ? '#E6EEF6' : '#0B1A33' }]}
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: isDarkMode ? '#0B0F14' : '#F6F8FB' },
+      ]}
+    >
+      {/* Start Screen */}
+      {route === 'start' ? (
+        <StartScreen
+          imageUri={'https://i.ibb.co/dwMssM6M/unsplash-fou-VDm-GXo-PI.png'}
+          onGetStarted={onNavigateShop}
+        />
+      ) : (
+        <>
+          {/* Header */}
+          <Header
+            isDarkMode={isDarkMode}
+            route={route}
+            selectedProduct={selectedProduct}
+            cartCount={cartCount}
+            onNavigateHome={onNavigateHome}
+            onNavigateCart={onNavigateCart}
           />
-        </View>
-        )}
 
-        {/* Product list (Home) */}
-        {route === 'home' && (
-          <>
-            <Text style={[styles.sectionTitle, { color: isDarkMode ? '#DDE8F4' : '#0B1A33' }]}>Popular Products</Text>
-            <View>
-              {products.map((p) => (
-                <View key={p.id} style={[styles.productCard, { backgroundColor: isDarkMode ? '#0F1520' : '#FFFFFF', borderColor: isDarkMode ? '#1E293B' : '#E8EEF6' }]}>
-                  <Image source={{ uri: p.image }} style={styles.productImage} resizeMode="cover" />
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.productName, { color: isDarkMode ? '#E6EEF6' : '#102A43' }]}>{p.name}</Text>
-                    <Text style={[styles.productPrice, { color: isDarkMode ? '#9FB3C8' : '#335577' }]}>${p.price.toFixed(2)}</Text>
-                    <View style={styles.productActions}>
-                      <TouchableOpacity activeOpacity={0.85} style={[styles.smallBtn, { backgroundColor: isDarkMode ? '#213149' : '#2563EB' }]} onPress={() => onAddToCart(p.id)}>
-                        <Text style={styles.smallBtnText}>Add to Cart</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity activeOpacity={0.85} style={[styles.smallBtnGhost, { borderColor: isDarkMode ? '#2A3A52' : '#B9CBE0' }]} onPress={() => onOpenDetails(p.id)}>
-                        <Text style={[styles.smallBtnGhostText, { color: isDarkMode ? '#CFE0F5' : '#1F5B82' }]}>Details</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-
-        {/* Details view */}
-        {route === 'details' && selectedProduct && (
-          <View style={[styles.detailsCard, { backgroundColor: isDarkMode ? '#0E1726' : '#FFFFFF', borderColor: isDarkMode ? '#1B2537' : '#E6EEF6' }]}> 
-            <Image source={{ uri: selectedProduct.image }} style={styles.detailsImage} resizeMode="cover" />
-            <Text style={[styles.detailsName, { color: isDarkMode ? '#F0F7FF' : '#0B1A33' }]}>{selectedProduct.name}</Text>
-            <Text style={[styles.detailsPrice, { color: isDarkMode ? '#9AB3C9' : '#184766' }]}>${selectedProduct.price.toFixed(2)}</Text>
-            <Text style={[styles.detailsDesc, { color: isDarkMode ? '#9AB3C9' : '#6B7A90' }]}>{selectedProduct.description}</Text>
-            <TouchableOpacity activeOpacity={0.9} style={styles.featureCta} onPress={() => onAddToCart(selectedProduct.id)}>
-              <Text style={styles.featureCtaText}>Add to Cart</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Cart view */}
-        {route === 'cart' && (
-          <View style={[styles.cartContainer, { backgroundColor: isDarkMode ? '#0E1726' : '#FFFFFF', borderColor: isDarkMode ? '#1B2537' : '#E6EEF6' }]}> 
-            {cart.length === 0 ? (
-              <Text style={[styles.cartEmpty, { color: isDarkMode ? '#9AB3C9' : '#6B7A90' }]}>Your cart is empty</Text>
-            ) : (
-              cart.map((it) => {
-                const p = products.find(pp => pp.id === it.productId);
-                if (!p) return null;
-                return (
-                  <View key={it.productId} style={styles.cartRow}>
-                    <Image source={{ uri: p.image }} style={styles.cartRowImage} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.cartRowName, { color: isDarkMode ? '#E6EEF6' : '#0B1A33' }]}>{p.name}</Text>
-                      <Text style={[styles.cartRowMeta, { color: isDarkMode ? '#9FB3C8' : '#335577' }]}>${p.price.toFixed(2)} · Qty: {it.qty}</Text>
-                    </View>
-                    <View style={styles.cartRowActions}>
-                      <TouchableOpacity onPress={() => onDecrementFromCart(p.id)} style={[styles.qtyBtn, { borderColor: isDarkMode ? '#2A3A52' : '#B9CBE0' }]}>
-                        <Text style={[styles.qtyBtnText, { color: isDarkMode ? '#CFE0F5' : '#1F5B82' }]}>−</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => onAddToCart(p.id)} style={[styles.qtyBtn, { borderColor: isDarkMode ? '#2A3A52' : '#B9CBE0' }]}>
-                        <Text style={[styles.qtyBtnText, { color: isDarkMode ? '#CFE0F5' : '#1F5B82' }]}>＋</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                );
-              })
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            {/* Shop list */}
+            {route === 'shop' && (
+              <ShopList
+                isDarkMode={isDarkMode}
+                products={products}
+                onAddToCart={onAddToCart}
+                onOpenDetails={onOpenDetails}
+              />
             )}
-            {cart.length > 0 && (
-              <>
-                <View style={styles.cartFooter}>
-                  <Text style={[styles.cartTotalLabel, { color: isDarkMode ? '#CFE0F5' : '#102A43' }]}>Total</Text>
-                  <Text style={[styles.cartTotalValue, { color: isDarkMode ? '#F0F7FF' : '#0B1A33' }]}>${cartTotal.toFixed(2)}</Text>
-                </View>
-                <TouchableOpacity activeOpacity={0.9} style={[styles.featureCta, { alignSelf: 'stretch', marginTop: 10 }]} onPress={onNavigateCheckout}>
-                  <Text style={styles.featureCtaText}>Proceed to Checkout</Text>
-                </TouchableOpacity>
-              </>
+
+            {/* Home */}
+            {route === 'home' && (
+              <HomeScreen isDarkMode={isDarkMode} onNavigateShop={onNavigateShop} />
             )}
-          </View>
-        )}
 
-        {/* Checkout view */}
-        {route === 'checkout' && (
-          <View style={[styles.detailsCard, { backgroundColor: isDarkMode ? '#0E1726' : '#FFFFFF', borderColor: isDarkMode ? '#1B2537' : '#E6EEF6' }]}> 
-            <Text style={[styles.detailsName, { color: isDarkMode ? '#F0F7FF' : '#0B1A33' }]}>Shipping Address</Text>
-            <View style={styles.formGroup}>
-              <TextInput placeholder="Full Name" placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} style={[styles.input, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} />
-              <TextInput placeholder="Phone" keyboardType="phone-pad" placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} style={[styles.input, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} />
-              <TextInput placeholder="Address Line" placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} style={[styles.input, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} />
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TextInput placeholder="City" style={[styles.inputHalf, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} />
-                <TextInput placeholder="ZIP" keyboardType="number-pad" style={[styles.inputHalf, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} />
-              </View>
-            </View>
-            <View style={[styles.cartFooter, { marginTop: 12 }]}>
-              <Text style={[styles.cartTotalLabel, { color: isDarkMode ? '#CFE0F5' : '#102A43' }]}>Order Total</Text>
-              <Text style={[styles.cartTotalValue, { color: isDarkMode ? '#F0F7FF' : '#0B1A33' }]}>${cartTotal.toFixed(2)}</Text>
-            </View>
-            <TouchableOpacity activeOpacity={0.9} style={[styles.featureCta, { alignSelf: 'stretch', marginTop: 12 }]} onPress={onNavigatePayment}>
-              <Text style={styles.featureCtaText}>Continue to Payment</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Payment view */}
-        {route === 'payment' && (
-          <View style={[styles.detailsCard, { backgroundColor: isDarkMode ? '#0E1726' : '#FFFFFF', borderColor: isDarkMode ? '#1B2537' : '#E6EEF6' }]}> 
-            <Text style={[styles.detailsName, { color: isDarkMode ? '#F0F7FF' : '#0B1A33' }]}>Payment</Text>
-            <View style={styles.formGroup}>
-              <TextInput placeholder="Name on card" placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} style={[styles.input, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} />
-              <TextInput placeholder="Card number" keyboardType="number-pad" placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} style={[styles.input, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} />
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TextInput placeholder="MM/YY" keyboardType="numbers-and-punctuation" style={[styles.inputHalf, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} />
-                <TextInput placeholder="CVV" keyboardType="number-pad" secureTextEntry style={[styles.inputHalf, { color: isDarkMode ? '#E6EEF6' : '#0B1A33', borderColor: isDarkMode ? '#243248' : '#D4E1F1', backgroundColor: isDarkMode ? '#0F1623' : '#FFFFFF' }]} placeholderTextColor={isDarkMode ? '#6D8098' : '#9BB0C6'} />
-              </View>
-            </View>
-            <TouchableOpacity activeOpacity={0.9} style={[styles.featureCta, { alignSelf: 'stretch', marginTop: 12 }]} onPress={onPaymentSuccess}>
-              <Text style={styles.featureCtaText}>Pay ${cartTotal.toFixed(2)}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-      {/* Bottom Navbar */}
-      <View style={[styles.navbar, { backgroundColor: isDarkMode ? '#0E1726F2' : '#FFFFFFF2', borderColor: isDarkMode ? '#1B2537' : '#E6EEF6' }]}> 
-        <TouchableOpacity activeOpacity={0.85} style={styles.navItem} onPress={onNavigateHome}>
-          <Text style={[styles.navIcon, { color: route === 'home' ? '#2563EB' : (isDarkMode ? '#9FB3C8' : '#6B7A90') }]}>🏠</Text>
-          <Text style={[styles.navLabel, { color: route === 'home' ? '#2563EB' : (isDarkMode ? '#CFE0F5' : '#102A43') }]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.85} style={styles.navItem} onPress={onNavigateCart}>
-          <View style={{ position: 'relative', alignItems: 'center' }}>
-            <Text style={[styles.navIcon, { color: route === 'cart' ? '#2563EB' : (isDarkMode ? '#9FB3C8' : '#6B7A90') }]}>🛒</Text>
-            {cartCount > 0 && (
-              <View style={styles.navBadge}>
-                <Text style={styles.navBadgeText}>{cartCount}</Text>
-              </View>
+            {/* Details */}
+            {route === 'details' && selectedProduct && (
+              <DetailsScreen
+                isDarkMode={isDarkMode}
+                product={selectedProduct}
+                onAddToCart={onAddToCart}
+              />
             )}
-          </View>
-          <Text style={[styles.navLabel, { color: route === 'cart' ? '#2563EB' : (isDarkMode ? '#CFE0F5' : '#102A43') }]}>Cart</Text>
-        </TouchableOpacity>
-      </View>
+
+            {/* Cart */}
+            {route === 'cart' && (
+              <CartScreen
+                isDarkMode={isDarkMode}
+                cart={cart}
+                products={products}
+                cartTotal={cartTotal}
+                onAddToCart={onAddToCart}
+                onDecrementFromCart={onDecrementFromCart}
+                onNavigateCheckout={onNavigateCheckout}
+              />
+            )}
+
+            {/* Checkout */}
+            {route === 'checkout' && (
+              <CheckoutScreen
+                isDarkMode={isDarkMode}
+                cartTotal={cartTotal}
+                onNavigatePayment={onNavigatePayment}
+              />
+            )}
+
+            {/* Payment */}
+            {route === 'payment' && (
+              <PaymentScreen
+                isDarkMode={isDarkMode}
+                cartTotal={cartTotal}
+                onPaymentSuccess={onPaymentSuccess}
+              />
+            )}
+
+            <View style={styles.bottomSpacer} />
+          </ScrollView>
+
+          {/* Bottom Navbar (hidden on Start) */}
+          {route !== 'start' && (
+            <Navbar
+              isDarkMode={isDarkMode}
+              route={route}
+              cartCount={cartCount}
+              onNavigateHome={onNavigateHome}
+              onNavigateShop={onNavigateShop}
+              onNavigateCart={onNavigateCart}
+            />
+          )}
+        </>
+      )}
     </SafeAreaView>
   );
 }
