@@ -27,6 +27,11 @@ import DetailsScreen from './src/screens/DetailsScreen';
 import CartScreen from './src/screens/CartScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
 import PaymentScreen from './src/screens/PaymentScreen';
+import SignIn from './src/screens/SignIn';
+import SignUp from './src/screens/SignUp';
+import ForgotPassword from './src/screens/ForgotPassword';
+import Otp from './src/screens/Otp';
+import ResetPassword from './src/screens/ResetPassword';
 
 // Define static products at the module level to keep hook order stable
 const PRODUCTS = [
@@ -73,7 +78,7 @@ function App() {
   const products = PRODUCTS;
 
   // simple navigation and cart state
-  const [route, setRoute] = useState('start'); // 'start' | 'home' | 'shop' | 'details' | 'cart' | 'checkout' | 'payment'
+  const [route, setRoute] = useState('start'); // 'start' | 'signin' | 'signup' | 'forgot' | 'otp' | 'reset' | 'home' | 'shop' | 'details' | 'cart' | 'checkout' | 'payment'
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [cart, setCart] = useState([]); // [{ productId, qty }]
 
@@ -96,6 +101,12 @@ function App() {
   const navigateHome = () => setRoute('home');
   const navigateCart = () => setRoute('cart');
   const navigateShop = () => setRoute('shop');
+  // auth routes
+  const navigateSignIn = () => setRoute('signin');
+  const navigateSignUp = () => setRoute('signup');
+  const navigateForgot = () => setRoute('forgot');
+  const navigateOtp = () => setRoute('otp');
+  const navigateReset = () => setRoute('reset');
   const openDetails = productId => {
     setSelectedProductId(productId);
     setRoute('details');
@@ -160,6 +171,11 @@ function App() {
         onNavigateCheckout={navigateCheckout}
         onNavigatePayment={navigatePayment}
         onPaymentSuccess={handlePaymentSuccess}
+        onNavigateSignIn={navigateSignIn}
+        onNavigateSignUp={navigateSignUp}
+        onNavigateForgot={navigateForgot}
+        onNavigateOtp={navigateOtp}
+        onNavigateReset={navigateReset}
       />
     </SafeAreaProvider>
   );
@@ -182,7 +198,14 @@ function AppContent({
   onNavigateCheckout,
   onNavigatePayment,
   onPaymentSuccess,
+  onNavigateSignIn,
+  onNavigateSignUp,
+  onNavigateForgot,
+  onNavigateOtp,
+  onNavigateReset,
 }) {
+  const isAuthRoute = ['signin', 'signup', 'forgot', 'otp', 'reset'].includes(route);
+
   return (
     <SafeAreaView
       style={[
@@ -194,21 +217,62 @@ function AppContent({
       {route === 'start' ? (
         <StartScreen
           imageUri={'https://i.ibb.co/dwMssM6M/unsplash-fou-VDm-GXo-PI.png'}
-          onGetStarted={onNavigateShop}
+          onGetStarted={onNavigateSignIn}
         />
       ) : (
         <>
-          {/* Header */}
-          <Header
-            isDarkMode={isDarkMode}
-            route={route}
-            selectedProduct={selectedProduct}
-            cartCount={cartCount}
-            onNavigateHome={onNavigateHome}
-            onNavigateCart={onNavigateCart}
-          />
+          {/* Header (hidden on auth routes) */}
+          {!isAuthRoute && (
+            <Header
+              isDarkMode={isDarkMode}
+              route={route}
+              selectedProduct={selectedProduct}
+              cartCount={cartCount}
+              onNavigateHome={onNavigateHome}
+              onNavigateCart={onNavigateCart}
+            />
+          )}
 
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            {/* Auth screens */}
+            {route === 'signin' && (
+              <SignIn
+                isDarkMode={isDarkMode}
+                onSubmit={onNavigateHome}
+                onGoSignUp={onNavigateSignUp}
+                onGoForgot={onNavigateForgot}
+              />
+            )}
+            {route === 'signup' && (
+              <SignUp
+                isDarkMode={isDarkMode}
+                onSubmit={onNavigateSignIn}
+                onGoSignIn={onNavigateSignIn}
+              />
+            )}
+            {route === 'forgot' && (
+              <ForgotPassword
+                isDarkMode={isDarkMode}
+                onSubmit={onNavigateOtp}
+                onGoSignIn={onNavigateSignIn}
+              />
+            )}
+            {route === 'otp' && (
+              <Otp
+                isDarkMode={isDarkMode}
+                onSubmit={onNavigateReset}
+                onResend={() => {}}
+                onBackToSignIn={onNavigateSignIn}
+              />
+            )}
+            {route === 'reset' && (
+              <ResetPassword
+                isDarkMode={isDarkMode}
+                onSubmit={onNavigateSignIn}
+                onBackToSignIn={onNavigateSignIn}
+              />
+            )}
+
             {/* Shop list */}
             {route === 'shop' && (
               <ShopList
@@ -268,7 +332,7 @@ function AppContent({
           </ScrollView>
 
           {/* Bottom Navbar (hidden on Start) */}
-          {route !== 'start' && (
+          {route !== 'start' && !isAuthRoute && (
             <Navbar
               isDarkMode={isDarkMode}
               route={route}
