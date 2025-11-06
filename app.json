@@ -1,4 +1,9 @@
 {
   "name": "AwesomeProject",
-  "displayName": "Awesome React Native"
+  "displayName": "Awesome React Native",
+  "extra": {
+    "eas": {
+      "projectId": "10f7d2ed-4f08-417d-8f03-5a6311957aeb"
+    }
+  }
 }

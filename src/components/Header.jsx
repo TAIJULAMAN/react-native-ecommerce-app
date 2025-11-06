@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Header({ isDarkMode, route, selectedProduct, cartCount, onNavigateHome, onNavigateCart }) {
   return (
@@ -11,7 +12,7 @@ export default function Header({ isDarkMode, route, selectedProduct, cartCount, 
             activeOpacity={0.8}
             style={[styles.backBtn, { borderColor: isDarkMode ? '#253041' : '#D4E1F1', backgroundColor: isDarkMode ? '#121A24' : '#FFFFFF' }]}
           >
-            <Text style={{ fontSize: 16 }}>←</Text>
+            <Ionicons name="chevron-back" size={18} color={isDarkMode ? '#E6EEF6' : '#0B1A33'} />
           </TouchableOpacity>
         )}
         <View>
@@ -29,7 +30,7 @@ export default function Header({ isDarkMode, route, selectedProduct, cartCount, 
         </View>
       </View>
       <TouchableOpacity onPress={onNavigateCart} activeOpacity={0.8} style={[styles.cartBtn, { backgroundColor: isDarkMode ? '#1A2330' : '#E6EEF6', borderColor: isDarkMode ? '#253041' : '#D4E1F1' }]}>
-        <Text style={{ fontSize: 18 }}>🛒</Text>
+        <Ionicons name="cart-outline" size={20} color={isDarkMode ? '#9FB3C8' : '#102A43'} />
         {cartCount > 0 && (
           <View style={styles.cartBadge}>
             <Text style={styles.cartBadgeText}>{cartCount}</Text>
