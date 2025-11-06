@@ -4,11 +4,17 @@
     "slug": "awesomeproject",
     "version": "0.0.1",
     "sdkVersion": "54.0.0",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "extra": {
       "eas": {
         "projectId": "10f7d2ed-4f08-417d-8f03-5a6311957aeb"
       }
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
